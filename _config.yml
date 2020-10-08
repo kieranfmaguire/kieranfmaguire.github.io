@@ -1,1 +1,4 @@
 theme: jekyll-theme-hacker
+title: "Learning Deep Learning"
+description: "A collection of notes"
+show_downloads: false
