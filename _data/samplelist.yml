@@ -1,0 +1,6 @@
+docs_list_title: Some links
+docs:
+  - title: Home
+    url: index
+  - title: Newpage
+    url: newpage
