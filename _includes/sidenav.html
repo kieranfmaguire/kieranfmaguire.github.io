@@ -1,0 +1,8 @@
+<div class="sidenav">
+  {% for item in site.data.toc.toc %}
+  <a class="h1" href="{{ item.url }}">./{{ item.title }}</a>
+    {% for subitem in item.subitems %}
+    <a href="{{ subitem.url }}">./{{ subitem.title }}</a>
+    {% endfor %}
+  {% endfor %}
+</div>

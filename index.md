@@ -1,5 +1,5 @@
 ---
-title: Learning Deep Learning
+title: "/ Home" 
 layout: default
 ---
 

@@ -1,0 +1,17 @@
+toc:
+  - title: Home
+    url: /index
+    subitems:
+  - title: Preliminaries
+    url: /sections/preliminaries/index
+    subitems:
+      - title: Perceptrons
+        url: /sections/preliminaries/perceptrons
+      - title: Multi Layer Perceptrons
+        url: /sections/preliminaries/multi_layer_perceptrons
+  - title: Training
+    url: /sections/training/index
+    subitems:
+      - title: Adam
+        url: /sections/training/adam
+
