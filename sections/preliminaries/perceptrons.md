@@ -1,5 +1,5 @@
 ---
-title: "/ Preliminaries / Perceptrons"
+title: "Preliminaries / Perceptrons"
 layout: default
 ---
 # Placeholder

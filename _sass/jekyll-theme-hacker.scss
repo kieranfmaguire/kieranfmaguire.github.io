@@ -15,7 +15,7 @@ $sidenav-width: 200px;
 }
 
 body {
-  margin: 0 0 0 $sidenav-width; 
+  margin: 0 0 0 180px; 
   padding: 0;
   background: $body-background url("../images/bkg.png") 0 0;
   color: $body-foreground;
@@ -40,7 +40,7 @@ section {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  margin: 0 0 20px;
+  margin: 10px 0 10px 0;
 }
 
 li {
@@ -58,25 +58,25 @@ header {
   width: 100%;
   border-bottom: 1px dashed $conifer; //header;
   padding: 0 0;
-  margin: 0 40px 0 0;
+  margin: 0 0 0 0;
 }
 
 
 .sidenav {
   height: 100%;
-  width: $sidenav-width; 
+  width: 180px; 
   position: fixed;
   z-index: 1;
   top: 0;
   left: 0;
   overflow-x: hidden;
-  padding-top: 20px;
+  padding-top: 160px;
   background: rgba(0, 0, 0, 0.1);
   border-right: 1px dashed $conifer; //header;
 }
 
 .sidenav a {
-  padding: 4px 8px 4px 32px;
+  padding: 4px 8px 4px 20px;
   text-decoration: none;
   font-size: 12px;
   display: block;
@@ -85,7 +85,7 @@ header {
 
 
 .sidenav a.h1 {
-  padding: 6px 8px 6px 4px;
+  padding: 6px 8px 6px 20px;
   text-decoration: none;
   font-size: 18px;
   display: block;
@@ -101,7 +101,8 @@ header {
 header h1 {
   font-size: 30px;
   line-height: 1.5;
-  margin: 0 0 0 -40px;
+  margin: 0 0 0 0;
+  padding-top: 20px;
   font-weight: bold;
   font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
   color: $conifer;//$header;
@@ -114,13 +115,12 @@ header h1 {
     margin-left: 0;
   }
 }
-
-
-header h1:before {
+/*
+:before {
   content: "./ ";
   font-size: 24px;
 }
-
+*/
 header h2 {
   font-size: 18px;
   font-weight: 300;

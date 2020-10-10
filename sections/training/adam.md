@@ -1,5 +1,5 @@
 ---
-title: "/ Training / Adam"
+title: "Training / Adam"
 layout: default
 ---
 # Placeholder

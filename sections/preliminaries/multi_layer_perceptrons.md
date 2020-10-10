@@ -1,5 +1,5 @@
 ---
-title: "/ Preliminaries / Multi Layer Perceptrons"
+title: "Preliminaries / Multi Layer Perceptrons"
 layout: default
 ---
 # Placeholder

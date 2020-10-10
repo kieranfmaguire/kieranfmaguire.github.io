@@ -1,9 +1,11 @@
 ---
-title: "/ Home" 
+title: "Home" 
 layout: default
 ---
 
 # Hello, world!
+
+Here is somme sample math: $\frac{2}{4} = \frac{1}{2}$
 
 ## Welcome to GitHub Pages
 
