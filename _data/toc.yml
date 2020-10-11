@@ -14,4 +14,6 @@ toc:
     subitems:
       - title: Adam
         url: /sections/training/adam
-
+  - title: References
+    url: /sections/references/index
+    subitems:

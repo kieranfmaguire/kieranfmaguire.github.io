@@ -1,0 +1,91 @@
+@import "rouge-base16-dark";
+@import "default_colors";
+
+$body-background: $cod-grey !default;
+$body-foreground: $gallery !default;
+$header: $conifer !default;
+$blockquote-color: $silver-chalice !default;
+$blockquote-border: $dove-grey !default;
+$container-max-width: 2000px;
+$sidenav-width: 240px;
+
+
+/* Fixed sidenav, full height */
+.sidenav {
+  height: 100%;
+  width: $sidenav-width;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  overflow-x: hidden;
+  padding-top: 160px;
+  background: rgba(0, 0, 0, 0.1);
+  border-right: 1px dashed $conifer; //header;
+}
+
+/* A class which will contain link and dropdown button */
+.sidenav-item {
+  display: block;
+}
+
+.sidenav-item:hover {
+  color: $header;
+  border-bottom: 1px dashed $conifer; //header;
+  border-top: 1px dashed $conifer; //header;
+}
+
+.sidenav-item a {
+  text-decoration: none;
+  width: 160px; 
+  padding: 6px 6px 6px 20px;
+  font-size: 20;
+  color: #666;
+  display: inline-block;
+}
+
+.sidenav-subitem {
+  display: block;
+}
+
+.sidenav-subitem:hover {
+  color: $header;
+  border-bottom: 1px dashed $conifer; //header;
+  border-top: 1px dashed $conifer; //header;
+}
+
+.sidenav-subitem a {
+  width: 100px; 
+  text-decoration: none;
+  padding: 6px 6px 6px 20px;
+  font-size: 10;
+  color: #666;
+  display: inline-block;
+}
+
+
+.sidenav-button {
+  border: none;
+  background-color: rgba(0, 0, 0, 0.1);
+  background: none;
+  color: #666; 
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 20;
+  padding: 6px 20px 6px 6px;
+}
+
+.sidenav-item a:hover, .sidenav-subitem a:hover, .sidenav-button:hover {
+  cursor: pointer;
+  color: $header;
+}
+
+
+.dropdown-container {
+  display: none;
+  background-color: $body-background;
+  padding-left: 8px;
+}
+

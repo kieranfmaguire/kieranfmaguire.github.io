@@ -1,5 +1,6 @@
 @import "rouge-base16-dark";
 @import "default_colors";
+@import "sidenav";
 
 $body-background: $cod-grey !default;
 $body-foreground: $gallery !default;
@@ -7,7 +8,6 @@ $header: $conifer !default;
 $blockquote-color: $silver-chalice !default;
 $blockquote-border: $dove-grey !default;
 $container-max-width: 2000px;
-$sidenav-width: 200px;
 @mixin media-max-width($max-width) {
   @media (max-width: $max-width) {
       @content;
@@ -15,7 +15,7 @@ $sidenav-width: 200px;
 }
 
 body {
-  margin: 0 0 0 180px; 
+  margin: 0 0 0 $sidenav-width;
   padding: 0;
   background: $body-background url("../images/bkg.png") 0 0;
   color: $body-foreground;
@@ -61,7 +61,7 @@ header {
   margin: 0 0 0 0;
 }
 
-
+/*
 .sidenav {
   height: 100%;
   width: 180px; 
@@ -96,7 +96,7 @@ header {
   border-bottom: 1px dashed $conifer; //header;
   border-top: 1px dashed $conifer; //header;
 }
-
+*/
 
 header h1 {
   font-size: 30px;

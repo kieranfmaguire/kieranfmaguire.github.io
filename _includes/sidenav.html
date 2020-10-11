@@ -1,8 +1,53 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 <div class="sidenav">
   {% for item in site.data.toc.toc %}
-  <a class="h1" href="{{ item.url }}">{{ item.title }}</a>
-    {% for subitem in item.subitems %}
-    <a href="{{ subitem.url }}">{{ subitem.title }}</a>
-    {% endfor %}
-  {% endfor %}
+    <div class="sidenav-item">
+      <a href="{{ item.url }}">{{ item.title }}</a>
+      {% if item.subitems %}
+        <button class="sidenav-button">
+          <i onclick="myToggle(this)" class="fa fa-chevron-right"></i>
+        </button>
+      {% endif %}
+    </div>
+      {% if item.subitems %}
+        <div class="dropdown-container">
+          {% for subitem in item.subitems %}
+            <div class="sidenav-subitem">
+              <a href="{{ subitem.url }}">{{ subitem.title }}</a>
+            </div>
+          {% endfor%}
+        </div>
+      {% endif %}
+  {% endfor%}
 </div>
+
+
+
+<script>
+/* Loop through all dropdown buttons to toggle between hiding and showing its dropdown content - This allows the user to have multiple dropdowns without any conflict */
+
+var dropdown = document.getElementsByClassName("sidenav-button");
+var i;
+
+for (i = 0; i < dropdown.length; i++) {
+  dropdown[i].addEventListener("click", function() {
+  this.classList.toggle("active");
+  var parentDiv = this.parentElement;
+  var dropdownContent = parentDiv.nextElementSibling;
+  if (dropdownContent.style.display === "block") {
+  dropdownContent.style.display = "none";
+  } else {
+  dropdownContent.style.display = "block";
+  }
+  });
+}
+</script>
+
+<script>
+  /* Toggle the icon used in the dropdown button on click */
+  function myToggle(x) {
+  x.classList.toggle("fa-chevron-down")
+  }
+</script>
+
