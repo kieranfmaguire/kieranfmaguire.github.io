@@ -80,7 +80,7 @@ can then be rewritten as:
 
 $$
 \begin{align}\label{P2}\tag{P2}
-P_W(x) = \phi( x W), &&\mathrm{where} \,\,\,\, \phi(\cdot) = H(\cdot).
+P_W(x) = \phi( x^T W), &&\mathrm{where} \,\,\,\, \phi(\cdot) = H(\cdot).
 \end{align}
 $$
 
@@ -91,12 +91,13 @@ implementation it is.
 One final notational adjustment, is that typically these models are specified with
 an extra parameter called a _bias_, $$b$$, which is more or less equivalent to
 an intercept term in statistical modeling. It could be represented by appending
-a $$1$$ to each feature vector, and appending a column, $$b$$, to the weight
-matrix $$W$$. However, more commonly it is represented as below: 
+a $$1$$ to each feature vector, and appending an element $$b_i$$ to each weight
+vector $$w_i$$.
+However, more commonly it is represented as below: 
 
 $$
 \begin{align}\tag{P3}\label{P3}
-P_{W,b}(x) = \phi( x W + b), &&\mathrm{where} \,\,\,\, \phi(\cdot) = H(\cdot).
+P_{W,b}(x) = \phi( x^T W + b), &&\mathrm{where} \,\,\,\, b\in \mathbf{R}^k.
 \end{align}
 $$
 
@@ -169,7 +170,7 @@ MP_{W,b} = \underset{0 \leq i \leq k-1}{\mathrm{argmax}} \,\,\, \{ w_i^t x + b_i
 $$
 
 where $$w_i$$ and $$b_i$$ are the fitted weights and bias respectively from the
-$$i^{th}$$ LTU. 
+$$i^{th}$$ LTU (where $$i$$ starts at $$0$$ to match class labels). 
 
 ### Deriving the margin
 
@@ -197,18 +198,183 @@ as claimed.
 ## Perceptron Learning Algorithm
 
 The Perceptron Learning Algorithm, or PLA, is a stochastic gradient descent
-algorithm for fitting the Perceptron defined by (\ref{P3}). It is stated below,
+algorithm for fitting Perceptrons. It is stated below,
 and then some discussion about its motivation and shortcomings is provided.
 
-### Algorithm: PLA
+### Algorithm
+For notational simplicity, assume the parameterisation described by Equation (\ref{P2}). 
+Note this does not lose any generality, as described above. 
+Given initial weights $$W$$ with columns $$w_1, \dots, w_k$$,
+observed data $$\{ (x_i, y_i) \in \mathbf{R}^p \times \mathbf{Z}_2^k: 1 \leq i \leq n\}$$
+and learning rate $$\eta \in \mathbf{R}$$, do the following until stopping
+criterion is met:
 
-Given initial weights $$W$$ with columns $$w_1, \dots, w_k$$, bias vector $$b$$, 
-and observed data $$\{ (x_i, y_i) \in \mathbf{R}^p \times \mathbf{Z}_2^k: 1 \leq i \leq n\}$$, 
-iterate the following steps until stopping criterion is met:
+  * __FOR__ $$i$$ in $$\{1, \dots, n \}$$; __DO__
+    * __FOR__ $$j$$ in $$\{1, \dots, k \}$$; __DO__
+      * Update weight vector $$j$$ with: $$w_j^{(new)} \leftarrow w_j^{(old)} + \eta(y_{i,j}- \hat{y}_{i,j}) x_i$$
 
- * __FOR__ $$i$$ in $$\{1, \dots, k \}$$; __DO__
-  1. $$W_{:,i} \leftarrow $$
-  2. Don't
+where $$\hat{y}_{i,j}$$ is the $$j^{th}$$ entry of $$P_{W,b}(x_i)$$. Appropriate stopping criterion is typically when $$\hat{y}_{i,j} = y_{i,j}$$ for all $$i,j$$, or
+max iterations reached.
+
+### Motivation
+
+One way to understand the algorithm, is to consider the classification of
+a single point $$y_{i,j}$$. If $$w_j^T x_i \geq 0$$, then $$\hat{y}_{i,j}
+= 1$$, and $$0$$ otherwise. If the corect value of $$y_{i,j}$$ matches
+$$\hat{y}_{i,j}$$, then
+in the update step for training instance $$i$$, $$w_j$$ will not be
+changed since $$(y_{i,j} - \hat{y}_{i,j}) = 0$$. On the other hand, if the
+predicted value is incorrect, there are two cases: 
+
+__Case 1:__ $$y_{i,j} = 1 \,\,\mathrm{and}\,\, \hat{y}_{i,j}=0$$  
+$$\begin{align}
+&\implies y_{i,j} - \hat{y}_{i,j} = 1 \\
+&\implies w_j^{(new)} = w_j^{(old)} + \eta x_i \\
+&\implies w_j^{(new)\,T}x_i = (w_j^{(old)}+\eta x_i)^Tx_i = w_j^{(old)\,T}x_i + \eta ||x_i||^2 \geq w_j^{(old)\,T}x_i
+\end{align}$$ 
+
+
+__Case 2:__  $$y_{i,j}=0 \,\,\mathrm{and}\,\, \hat{y}_{i,j}=1$$\\
+$$\begin{align}
+&\implies y_{i,j} - \hat{y}_{i,j} = -1 \\
+&\implies w_j^{(new)} = w_j^{(old)} - \eta x_i \\
+&\implies w_j^{(new)\,T}x_i = (w_j^{(old)}-\eta x_i)^Tx_i = w_j^{(old)\,T}x_i - \eta ||x_i||^2 \leq w_j^{(old)\,T}x_i
+\end{align}$$
+
+In both case $$w_j$$ is changed in such a way that $$w_j^{(new)\,T}x_i$$ is closer to
+correctly classifying $$y_{i,j}$$ than previously; if $$y_{i,j}=1$$,
+ then $$w_j^{(new)\,T}x_i \geq w_j^{(old)\,T}x_i$$, and vice-versa if
+$$y_{i,j} = 0$$.
+
+The same algorithm can also be derived in the framework of stochastic gradient
+descent with small notational adjsutment. First, change the class label of $$0$$ to $$-1$$, 
+and replace the heaviside step function from Equation (\ref{P2}) with the sign function $$sgn(\cdot)$$.
+Also let $$\odot$$ represent elementwise multiplication of two vectors, and let
+$$elmax\{a,\, b\}$$ denote the elementwise maximum of vectors $$a$$ and $$b$$.
+Then the perceptron loss can be defined as:
+
+$$\begin{align}\tag{L1}\label{L1}
+Q_W(x_i) = elmax\{0,\,\, y_i \odot x_i^T W\}
+\end{align}$$
+
+An obvious note is that (\ref{L1}) defines a vector of loss values, one for
+each class. Typically this is not a useful loss function, since it is ambiguous
+what it means to minimise a vector (eg. $$L_0$$ norm and $$L_{\infty}$$ norm
+are both valid definitions). However, notice that this formulation actually
+reduces to $$k$$ independent minimisation problems (where $$k$$ is the number
+of LTUs in the Perceptron); one for each class. In other words, each $$w_j$$
+can be fit independently, by minimising the associated scalar loss function:
+
+$$\begin{align}\label{L2}\tag{L2}
+Q_{w_j}(x_i) = max\{0,\,\,y_{i,j} w_j^T x_i\}.
+\end{align}$$
+
+Differentiating this function with respect to $$w_j$$ gives:
+
+$$\begin{align}\label{L3}\tag{L3}
+\nabla \{\,Q_{w_j}(x_i)\, \} &=
+  \begin{cases} 
+    &0 &&\mathrm{when} \,\, sgn(y_i) = sgn(w_j^Tx_i) \\
+    &y_{i,j} \, \nabla \{w_j^T x_i\} &&\mathrm{otherwise} 
+  \end{cases} \\
+&=
+  \begin{cases} 
+    &0 &&\mathrm{when} \,\, sgn(y_i) = sgn(w_j^Tx_i) \\
+    &y_{i,j} x_i &&\mathrm{otherwise} 
+  \end{cases} \\
+\end{align}$$
+
+which when plugged into the usual SGD algorithm with step size equal to
+$$\eta$$ gives the below formula for updating $$w_j$$:
+
+$$\begin{align}
+w_j^{(new)} &= 
+\begin{cases}
+&w_j^{(old)} &&\mathrm{when} \,\, y_{i,j} = \hat{y}_{i,j} \\
+&w_j^{(old)} + \eta y_{i,j} x_i &&\mathrm{otherwise}
+\end{cases} \\
+&= w_j^{(old)} + \mathbf{1}(y_{i,j}=\hat{y}_{i,j}) \, \eta \,y_{i,j} x_i
+\end{align}$$ 
+
+which is cleary equivalent to the formulation given in above.
+
+### Properties
+
+The PLA is only guaranteed to converge when the classes are linearly seperable,
+a very strong assumption. Furthermore, when the data is not linearly separable,
+the PLA will not even converge towards a reasonable solution as the number of
+iterations increases. This limits the usefulness of Perceptrons as a standalone
+classifier severely; if it is not known that the classes are linearly separable a priori, Perceptrons should not be used. 
+For this reason, it is almost always a better choice to use more modern
+algorithms, such as support vector machines (SVM) for example. Nevertheless,
+the proof of convergence in the linearly separable case is interesting to
+study. It is given below.
+
+### PLA Convergence
+
+As noted above, multiclass problems are reduceable into multiple binary
+classification problems, thus the treatment below is only given for the
+binary problem. However it is worth noting what it means for the multiclass
+problem to be linearly separable. Multiple classes being linearly separable is
+actually stronger than just assuming lineary decision boundaries. It means that
+ __each of the one vs the rest problems__ must be linearly separable.
+
+Let $$w^{(k)}$$ denote the weights after the $$k^{th}$$ update, and let the
+sequence $$t_1, t_2, \dots$$ denote the indices of the observations where each
+update occurs. Finally, let the observed data be $$\{(x_i, y_i) \in \mathbf{R}^p \times \{-1,1\} : 1 \leq i \leq n\}$$.
+ The proof needs the following three assumptions:
+
+__(A0)__ Initial condition: $$\|w^{(0)}\| = 0$$, where $$\|\cdot\|$$ denotes the $$L_2$$ norm.
+ 
+__(A1)__ Finite data: $$\|x_i\| \leq B < \infty, \,\, \forall i$$
+
+__(A2)__ Linearly separable: $$\exists\,\, w^{\star} \in \mathbf{R}^p : y_i w^{\star \,T}x_i \geq \epsilon, \,\, \forall i$$ for some $$\epsilon > 0$$
+
+Let $$\theta^{(k)}$$ denote the angle between $$w^{\star}$$ and $$w^{(k)}$$, so
+cosine of that angle can be written as:
+
+$$\begin{align}\tag{C1}\label{C1}
+cos(\theta^{(k)}) = \frac{ w^{\star\,T}w^{(k)} }{ \|w^{\star}\|\|w^{(k)}\| }
+\end{align}$$
+
+Studying the numerator of (\ref{C1}), a lower bound can be derived as follows:
+
+$$\begin{align}
+w^{(k)} &= w^{(k-1)} + \eta y_{t_k} x_{t_k} \\
+\implies w^{\star\,T}w^{(k)} &= w^{\star\,T}w^{(k-1)} + \eta y_{t_k}w^{\star\,T}x_{t_k} \\
+\implies  w^{\star\,T}w^{(k)} &\geq  w^{\star\,T}w^{(k-1)} + \eta \epsilon &&\mathrm{by} \,\, \mathrm{(A2)}\\
+\implies  w^{\star\,T}w^{(k)} &\geq  w^{\star\,T}w^{(0)} + k \eta \epsilon &&\mathrm{by}\,\,\mathrm{recursion}\\
+&= k \eta \epsilon &&\mathrm{by} \,\, \mathrm{(A0)}
+\end{align}$$
+
+And for the denomionator, an upper bound can be found by simple application of
+triangle inequality and recursively applying the same argument:
+
+$$\begin{align}
+\|w^{(k)}\|^2 &= \|w^{(k-1)} + \eta y_{t_k} x_{t_k}\|^2 \\
+&\leq \|w^{(k-1)}\|^2 + \eta^2 \|x_{t_k}\|^2 \\
+&\leq \|w^{(k-1)}\|^2 + \eta^2 B^2 &\mathrm{by}\,\,\mathrm{(A1)}\\
+&\leq k \eta^2 B^2 \\
+\implies \|w_{(k)}\| &\leq \sqrt{k} \eta B  
+\end{align}$$
+
+Putting the two bounds back into (\ref{C1}) and noting that the cosine function
+is bound above by 1 gives the finite bound on $$k$$:
+
+$$\begin{align}
+1 &\geq \frac{w^{\star\,T}w^{(k)}}{\|w^{\star}\|\|w^{(k)}\|} \geq \frac{k \eta \epsilon}{\|w^{\star}\| \sqrt{k} \eta B} \\
+\implies k &\leq \frac{\|w^{\star}\|^2 B^2}{\epsilon^2},
+\end{align}$$
+
+thus proving the result. The bound shows that under the assumptions (A0) - (A2), 
+the algorithm will converge in worst case time proportional to the
+largest $$\|x_i\|$$, the size of $$\|w^{\star}\|$$ and inversely proportional
+to the minimum margin.
+Note also that $$\|w^{\star}\|$$ is actually only determined by the entry
+corresponding to the bias $$b$$, since w.l.o.g the other entries of $$w$$ can
+be normalised without changing the solution (ie. the $$b$$ term is the shift
+factor from $$0$$, and the remaining entries of $$w$$ give the direction of the
+normal vector defining the orientation of the hyperplane).
 
 ## Example
 
