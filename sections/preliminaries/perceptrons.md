@@ -378,14 +378,151 @@ normal vector defining the orientation of the hyperplane).
 
 ## Example
 
-The code block below generates some points on the plane and assigns labels in
-such a way that the classes are linearly separable.
+The following code snippets demonstrate the the usage of the Perceptron implementation available
+in the Python package [scikit-learn](https://scikit-learn.org/stable/).
 
+### Binary Classification
+
+First, import packagaes that will be needed:
 ```python
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.linear_model import Perceptron
+import matplotlib.pyplot as plt
+plt.style.use('dark_background')
 ```
+
+Next, generate some points bin $$\mathbf{R}^2$$, and define a decision boundary
+to assign classes. The parameters of the decision boundary are $$w=(1,2)$$ and $$b=-3$$:
+```python
+# set seed for reproducibility
+np.random.seed(2020)
+
+# make some dummy data
+x = np.random.randn(100,2)*5
+w_star = np.array([1,2])
+b_star = 3
+
+# making labels which are linearly seperable
+y_star = ((x @ w_star) + b_star > 0).astype(np.int)
+
+# decision boudary
+decision_x = np.arange(start=x.min(), stop=x.max()+0.1, step=0.1)
+decision_y = -(b_star/w_star[1]) - (w_star[0]/w_star[1])*decision_x
+
+# visualise
+fig, ax = plt.subplots()
+ax.scatter(x[:,0], x[:,1], c=y_star)
+ax.plot(decision_x,decision_y,c='red')
+plt.title("Linearly separable classes")
+```
+
+The data looks like below; the colour of the points are the
+classes, and the red line is the decision boundary defined above.
+
+![](/assets/images/perceptron1.png){: .center-image }
+
+Now, use the Perceptron Learning Algorithm to fit a linear decision boundary to
+the data. The fitted decision boundary is slightly different from
+the one originally specified, since the PLA does not converge to a unique
+solution, just some solution.
+
+```python
+# fit a perceptron
+p = Perceptron(random_state=2020)
+p.fit(x, y_star)
+
+# get decision boundary and accuracy
+decision_y_fit = -(p.intercept_[0]/p.coef_[0][1]) - (p.coef_[0][0]/p.coef_[0][1])*decision_x
+accuracy = p.score(x, y_star)
+
+# visualise
+fig, ax = plt.subplots()
+ax.plot(decision_x,decision_y_fit,c='blue',label='fit')
+ax.plot(decision_x,decision_y,c='red',label='original')
+ax.scatter(x[:,0], x[:,1], c=y_star)
+ax.legend()
+plt.title(f'Perceptron fit (accuracy={accuracy*100}%)')
+```
+![](/assets/images/perceptron2.png){: .center-image }
+
+This plot shows quite clearly one of the shortcomings of this method;
+intuitively the fitted decision boundary is not ideal. It would make more sense
+if the decision boundary were to be equidistant to data on either side. However
+to achieve this requires are different loss function, for example maximum
+margin or similar.
+
+In the next block, the labels are changed slightly so that the data is no
+longer linearly separable.
+
+```python
+y_star_2 = y_star.copy()
+y_star_2[:5] = 1 - y_star_2[:5]
+fig, ax = plt.subplots()
+ax.scatter(x[:,0], x[:,1], c=y_star_2)
+plt.title("Data no longer linearly separable")
+```
+
+![](/assets/images/perceptron3.png){: .center-image }
+
+When the PLA is used to find a decision boundary, it will never converge. To
+illustrate, below
+chunk computes the decision boundary after every $$100$$ iterations (where an
+iteration means one complete pass over the data set, often called an epoch), and
+plots them.
+
+```python
+# ther is no guarantee the algorithm will converge towards a "good" solution when the data
+# is not linearly separable. This function keeps track of error at each iteration, and plots
+# the decision boundary every 100 iterations
+
+def fit_and_return_error(num_iters):
+    i = 0
+    p = Perceptron(random_state=2020,tol=None)
+    p.partial_fit(x,y_star_2,classes=np.unique(y_star_2))
+    fig, ax = plt.subplots()
+    ax.scatter(x[:,0], x[:,1], c=y_star_2)
+    plt.title('Fit at different iterations')
+    err = []
+    while True:
+        i += 1
+        p.partial_fit(x,y_star_2)
+        accuracy = p.score(x,y_star_2)
+        err.append(1 - accuracy)
+        if i % 100 == 0: 
+            dec_y = -(p.intercept_[0]/p.coef_[0][1]) - (p.coef_[0][0]/p.coef_[0][1])*decision_x
+            ax.plot(decision_x, dec_y, label=f'iter: {i}')
+        if i == num_iters: 
+            ax.legend()
+            return err
+        
+num_iters = 500
+err = fit_and_return_error(num_iters)
+```
+
+![](/assets/images/perceptron4.png){: .center-image }
+
+It doesn't look like the fit at $$500$$ iterations than the fit at $$100$$, as
+expected. To confirm, look at the accuracy at each iteration:
+
+```python
+plt.plot(np.arange(num_iters), err, label='error')
+plt.legend()
+plt.title('Error vs number of iterations')
+```
+
+![](/assets/images/perceptron5.png){: .center-image }
+
+### Mutliclass classification
+
+Now consider the case when there are 3 linearly separable classes. The block
+below generates such data, and produces labels from $$0 - 2$$.
+
+```python
+plt.plot(np.arange(num_iters), err, label='error')
+plt.legend()
+plt.title('Error vs number of iterations')
+```
+
 
 
 ### Perceptron Learning Algorithm (todo)

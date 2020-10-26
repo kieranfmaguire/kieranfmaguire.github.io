@@ -61,42 +61,12 @@ header {
   margin: 0 0 0 0;
 }
 
-/*
-.sidenav {
-  height: 100%;
-  width: 180px; 
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  overflow-x: hidden;
-  padding-top: 160px;
-  background: rgba(0, 0, 0, 0.1);
-  border-right: 1px dashed $conifer; //header;
+.center-image
+{
+    margin: 0 auto;
+    display: block;
+    width: 50%;
 }
-
-.sidenav a {
-  padding: 4px 8px 4px 20px;
-  text-decoration: none;
-  font-size: 12px;
-  display: block;
-  color: #666;
-}
-
-
-.sidenav a.h1 {
-  padding: 6px 8px 6px 20px;
-  text-decoration: none;
-  font-size: 18px;
-  display: block;
-  color: #666;
-}
-.sidenav a:hover {
-  color: $header;
-  border-bottom: 1px dashed $conifer; //header;
-  border-top: 1px dashed $conifer; //header;
-}
-*/
 
 header h1 {
   font-size: 30px;
