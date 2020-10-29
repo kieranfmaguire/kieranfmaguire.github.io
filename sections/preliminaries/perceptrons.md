@@ -138,7 +138,7 @@ direction of $$w$$. In other words, the direction of the weight vector $$w$$,
 which is by definition perpendicular to the hyperplane it defines, determines
 which class either side of the hyperplane will be. 
 
-### Multiple classes 
+### Multiple classes <a name="Multiple classes"></a>
 
 To generalise this to the multiclass setting ($$k \geq 2$$), some extra work is
 required. The $$m^{th}$$ LTU is trained to return $$1$$ if a point is in class
@@ -274,12 +274,12 @@ Differentiating this function with respect to $$w_j$$ gives:
 $$\begin{align}\label{L3}\tag{L3}
 \nabla \{\,Q_{w_j}(x_i)\, \} &=
   \begin{cases} 
-    &0 &&\mathrm{when} \,\, sgn(y_i) = sgn(w_j^Tx_i) \\
+    &0 &&\mathrm{when} \,\, sgn(y_{i,j}) = sgn(w_j^Tx_i) \\
     &y_{i,j} \, \nabla \{w_j^T x_i\} &&\mathrm{otherwise} 
   \end{cases} \\
 &=
   \begin{cases} 
-    &0 &&\mathrm{when} \,\, sgn(y_i) = sgn(w_j^Tx_i) \\
+    &0 &&\mathrm{when} \,\, sgn(y_{i,j}) = sgn(w_j^Tx_i) \\
     &y_{i,j} x_i &&\mathrm{otherwise} 
   \end{cases} \\
 \end{align}$$
@@ -296,7 +296,7 @@ w_j^{(new)} &=
 &= w_j^{(old)} + \mathbf{1}(y_{i,j}=\hat{y}_{i,j}) \, \eta \,y_{i,j} x_i
 \end{align}$$ 
 
-which is cleary equivalent to the formulation given in above.
+where $$\mathbf{1}(A)$$ is the indicator function for condition $$A$$. It is not hard to see this is equivalent to the formulation given above, with minor notational adjustment.
 
 ### Properties
 
@@ -518,25 +518,97 @@ Now consider the case when there are 3 linearly separable classes. The block
 below generates such data, and produces labels from $$0 - 2$$.
 
 ```python
-plt.plot(np.arange(num_iters), err, label='error')
-plt.legend()
-plt.title('Error vs number of iterations')
+# make a linearly separable 3 class problem in the plane
+c1 = [5,5] + (np.random.rand(25,2)*5) - 2.5
+c2 = [-5,5] + (np.random.rand(25,2)*5) - 2.5
+c3 = [0,-5] + (np.random.rand(25,2)*5) - 2.5
+x = np.concatenate([c1,c2,c3])
+y_star = np.concatenate([np.repeat(0,25),np.repeat(1,25),np.repeat(2,25)])
+```
+Next, fit a perceptron to the data, and extract the three decision boundaries
+for associated _1 vs the rest_ problems:
+
+```python
+# fit linear decision boundary for each 1 vs the rest problem
+p = Perceptron(tol=None)
+p.fit(x,y_star)
+
+# calculate linear decision boundary lines for each 1 vs the rest problem
+decision_x = np.arange(start=x[:,0].min(),stop=x[:,1].max(),step=0.05)
+linear_sep_1 = (-p.intercept_[0]/p.coef_[0][1]) - (p.coef_[0][0]/p.coef_[0][1])*decision_x
+linear_sep_2 = (-p.intercept_[1]/p.coef_[1][1]) - (p.coef_[1][0]/p.coef_[1][1])*decision_x
+linear_sep_3 = (-p.intercept_[2]/p.coef_[2][1]) - (p.coef_[2][0]/p.coef_[2][1])*decision_x
+
+# plot the classification problem and fitted decision boundaries
+# for each of the 1 vs the rest problems
+fig, ax = plt.subplots()
+ax.scatter(x[:,0],x[:,1],c=y_star)
+ax.plot(decision_x,linear_sep_1,color='purple')
+ax.plot(decision_x,linear_sep_2,color='teal')
+ax.plot(decision_x,linear_sep_3,color='yellow')
+plt.ylim([x.min()-1,x.max()+1])
 ```
 
+![](/assets/images/perceptron6.png){: .center-image}
 
+As discussed <a href="i#Multiple classes">above</a>, these 1 vs the rest
+decision boundaries are not so useful for classifying new points, hence the
+maximum margin decision boundaries are used. The Perceptron class provided by
+_scikit-learn_ handles this automatically, by reporting the margin to each
+decision boundary for each point via the `decision_function()` method. This
+way, any new point can be classified by checking the index of the maximum
+value of this output. The maximum margin decision boundaries can also be
+derived analytically with some simple algebra. Both are plotted below.
 
-### Perceptron Learning Algorithm (todo)
+```python
+# make a grid of points to classify
+points = np.meshgrid(decision_x,decision_x,indexing='ij')
+x1 = points[0].reshape(-1,1)
+x2 = points[1].reshape(-1,1)
+xx = np.concatenate([x1,x2],axis=1)
 
-* specify algorithm
-* add proof of convergence (under linear separability assumption)
+# get the class of each point in the grid
+y_grid = np.argmax(p.decision_function(xx), axis=1)
 
-### Limitations (todo)
+# compute the maximum margin decision boundaires analytically
 
- * Does not output class probabilities
- * Only works if data is linearly separable
+# compute point where maximum margin decision bound intersect
+b13, b23 = p.intercept_[0] - p.intercept_[2], p.intercept_[1] - p.intercept_[2]
+w2232, w1232 = p.coef_[1,1] - p.coef_[2,1], p.coef_[0,1] - p.coef_[2,1]
+w2131, w1131 = p.coef_[1,0] - p.coef_[2,0], p.coef_[0,0] - p.coef_[2,0]
+numerator = (b13/w1232) - (b23/w2232)
+denominator = (w2131/w2232) - (w1131/w1232)
+x_intersect = numerator/denominator
 
-## Implementation (todo)
+# compute domain for each of the boundaries
+lower_x = np.arange(start=x.min()-1,stop=x_intersect,step=0.01)
+upper_x = np.arange(start=x_intersect,stop=x.max()+1,step=0.01)
 
- * Python - sklearn
- * Python - custom
- * julia - custom
+# specify each of the maximum margin decision boundaries
+decision_boundary_1 = \
+    - (p.intercept_[1] - p.intercept_[2])/(p.coef_[1,1] - p.coef_[2,1]) \
+    - ((p.coef_[1,0] - p.coef_[2,0])/(p.coef_[1,1] - p.coef_[2,1])) * lower_x
+decision_boundary_2 = \
+    - (p.intercept_[0] - p.intercept_[1])/(p.coef_[0,1] - p.coef_[1,1]) \
+    - ((p.coef_[0,0] - p.coef_[1,0])/(p.coef_[0,1] - p.coef_[1,1])) * upper_x
+decision_boundary_3 = \
+    - (p.intercept_[0] - p.intercept_[2])/(p.coef_[0,1] - p.coef_[2,1]) \
+    - ((p.coef_[0,0] - p.coef_[2,0])/(p.coef_[0,1] - p.coef_[2,1])) * upper_x
+
+# visualise
+fig, ax = plt.subplots()
+ax.scatter(x[:,0], x[:,1], c=y_star)
+ax.scatter(xx[:,0], xx[:,1] ,c=y_grid, alpha=0.1, s=0.5)
+ax.plot(lower_x, decision_boundary_1, color='red')
+ax.plot(upper_x, decision_boundary_2, color='red')
+ax.plot(upper_x, decision_boundary_3, color='red')
+plt.xlim([x[:,0].min()-0.5, x[:,0].max()+0.5])
+plt.ylim([x[:,1].min()-0.5, x[:,1].max()+0.5])
+```
+
+![](/assets/images/perceptron7.png){: .center-image}
+
+The shaded regions in the above plot represent the class for any new points in
+that region, and the red lines are the analytical maximum margin decision
+boundaries. 
+
